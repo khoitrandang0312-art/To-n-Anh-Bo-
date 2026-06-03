@@ -1,0 +1,330 @@
+\documentclass[12pt,a4paper]{article}
+
+% ==================================================
+% TEMPLATE DE THI TOAN - OVERLEAF / YAML GENERATOR
+% Bien dich khuyen nghi: XeLaTeX
+% ==================================================
+
+% =========================
+% FONT VA NGON NGU
+% =========================
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage[vietnamese]{babel}
+
+% =========================
+% TOAN HOC
+% =========================
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\allowdisplaybreaks
+
+% Lam cong thuc inline dep hon, nhung khong ep toan bo qua lon
+\everymath{\displaystyle}
+
+% =========================
+% HINH VE
+% =========================
+\usepackage{graphicx}
+\usepackage{tikz}
+
+\usetikzlibrary{
+  calc,
+  angles,
+  quotes,
+  intersections,
+  patterns,
+  arrows.meta,
+  positioning,
+  decorations.pathreplacing,
+  shapes.geometric,
+  3d
+}
+
+\usepackage{tkz-tab}
+\usepackage{tkz-euclide}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% =========================
+% BANG BIEU - COT - DANH SACH
+% =========================
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{tasks}
+\usepackage{enumitem}
+\usepackage{environ}
+
+% =========================
+% TRANG - HEADER - FOOTER
+% =========================
+\usepackage[
+  a4paper,
+  left=18mm,
+  right=18mm,
+  top=16mm,
+  bottom=16mm
+]{geometry}
+
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{setspace}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2pt}
+\renewcommand{\baselinestretch}{1.05}
+
+% =========================
+% FOOTER
+% =========================
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\newcommand{\made}{0101}
+\fancyfoot[C]{\small Trang \thepage/\pageref{LastPage} -- Mã đề thi \made}
+
+% =========================
+% CHE DO GIAO VIEN / HOC SINH
+% =========================
+\newif\ifgiaovien
+
+% Bat loi giai:
+% \giaovientrue
+
+% An loi giai:
+\giaovienfalse
+
+% Moi truong loi giai an/hien an toan
+% Sua loi: Incomplete \iffalse
+\NewEnviron{loigiai}{%
+  \ifgiaovien
+    \par\noindent\textbf{Lời giải.}\par\noindent
+    \BODY
+    \par
+  \fi
+}
+
+% =========================
+% CAU HOI
+% =========================
+\newcounter{cau}
+
+\newcommand{\cau}{%
+  \stepcounter{cau}%
+  \par\vspace{3pt}%
+  \noindent\textbf{Câu \thecau. }%
+}
+
+% =========================
+% CAU TRA LOI TRAC NGHIEM
+% =========================
+\settasks{
+  label=\textbf{\Alph*.},
+  label-width=18pt,
+  item-indent=22pt,
+  label-offset=4pt,
+  column-sep=10pt,
+  after-item-skip=4pt,
+  after-skip=6pt
+}
+
+\newcommand{\bonpa}[4]{%
+\begin{tasks}(4)
+  \task #1
+  \task #2
+  \task #3
+  \task #4
+\end{tasks}
+}
+
+\newcommand{\haipa}[4]{%
+\begin{tasks}(2)
+  \task #1
+  \task #2
+  \task #3
+  \task #4
+\end{tasks}
+}
+
+\newcommand{\motcot}[4]{%
+\begin{tasks}(1)
+  \task #1
+  \task #2
+  \task #3
+  \task #4
+\end{tasks}
+}
+
+% =========================
+% PHAN DE THI
+% =========================
+\newcommand{\phan}[2]{%
+  \vspace{6pt}
+  \par\noindent\textbf{PHẦN #1.} #2
+  \vspace{3pt}
+}
+
+% =========================
+% DUNG / SAI
+% =========================
+\newenvironment{dungsai}
+{%
+  \begin{enumerate}[
+    label=\textbf{\alph*)},
+    leftmargin=18pt,
+    itemsep=2pt,
+    topsep=2pt
+  ]
+}
+{%
+  \end{enumerate}
+}
+
+% =========================
+% TRA LOI NGAN
+% =========================
+\newcommand{\shortanswerbox}[1]{%
+  \hfill
+  \fbox{%
+    \parbox[c][0.6cm][c]{2.8cm}{%
+      \centering
+      \ifgiaovien
+        #1%
+      \else
+        \phantom{#1}%
+      \fi
+    }%
+  }%
+}
+
+\newcommand{\shortanswerline}[1]{%
+  \hfill
+  \ifgiaovien
+    \underline{\hspace{0.3cm}#1\hspace{0.3cm}}%
+  \else
+    \underline{\hspace{3cm}}%
+  \fi
+}
+
+\newcommand{\fourshortanswers}[4]{%
+\begin{center}
+\begin{tabular}{cccc}
+\textbf{a)} & \textbf{b)} & \textbf{c)} & \textbf{d)} \\[4pt]
+\fbox{\parbox[c][0.6cm][c]{2.2cm}{\centering \ifgiaovien #1\else\phantom{#1}\fi}} &
+\fbox{\parbox[c][0.6cm][c]{2.2cm}{\centering \ifgiaovien #2\else\phantom{#2}\fi}} &
+\fbox{\parbox[c][0.6cm][c]{2.2cm}{\centering \ifgiaovien #3\else\phantom{#3}\fi}} &
+\fbox{\parbox[c][0.6cm][c]{2.2cm}{\centering \ifgiaovien #4\else\phantom{#4}\fi}}
+\end{tabular}
+\end{center}
+}
+
+% =========================
+% O MA DE
+% =========================
+\newcommand{\omade}{%
+\begin{tikzpicture}
+\node[
+  draw,
+  minimum width=31mm,
+  minimum height=8mm,
+  inner sep=0pt
+]
+{\textbf{Mã đề: \made}};
+\end{tikzpicture}
+}
+
+% =========================
+% HEADER DE THI
+% =========================
+\newcommand{\tieudethi}{%
+\begin{center}
+\begin{tabularx}{\textwidth}{>{\centering\arraybackslash}X>{\centering\arraybackslash}X}
+\textbf{BỘ GIÁO DỤC VÀ ĐÀO TẠO}
+&
+\textbf{KỲ THI TỐT NGHIỆP TRUNG HỌC PHỔ THÔNG NĂM 2025}
+\\
+\textbf{ĐỀ THI CHÍNH THỨC}
+&
+\textbf{Môn thi: TOÁN}
+\\
+\textit{(Đề thi có 04 trang)}
+&
+\textit{Thời gian làm bài 90 phút, không kể thời gian phát đề}
+\end{tabularx}
+\end{center}
+
+\vspace{4pt}
+
+\begin{tabularx}{\textwidth}{X r}
+\textbf{Họ, tên thí sinh:} \dotfill & \multirow{2}{*}{\omade} \\
+\textbf{Số báo danh:} \dotfill &
+\end{tabularx}
+
+\vspace{8pt}
+}
+
+% =========================
+% LENH TIEN ICH
+% =========================
+\newcommand{\chon}[1]{\textbf{Chọn #1.}}
+\newcommand{\dapanso}[1]{\textbf{Đáp án: #1.}}
+\newcommand{\hoac}{\quad\text{hoặc}\quad}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\C}{\mathbb{C}}
+
+\newcommand{\vect}[1]{\overrightarrow{#1}}
+\newcommand{\dd}{\,\mathrm{d}}
+
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\paren}[1]{\left(#1\right)}
+\newcommand{\bracket}[1]{\left[#1\right]}
+\newcommand{\set}[1]{\left\{#1\right\}}
+
+% =========================
+% BAT DAU TAI LIEU
+% =========================
+\begin{document}
+
+\tieudethi
+
+% =========================
+% PHAN I
+% =========================
+\phan{I}{Thí sinh trả lời từ câu 1 đến câu 12. Mỗi câu hỏi thí sinh chỉ chọn một phương án.}
+
+% --- PHAN_I_CAU_HOI ---
+
+% =========================
+% PHAN II
+% =========================
+\phan{II}{Thí sinh trả lời từ câu 1 đến câu 4. Trong mỗi ý a), b), c), d) ở mỗi câu, thí sinh chọn đúng hoặc sai.}
+\setcounter{cau}{0}
+
+% --- PHAN_II_CAU_HOI ---
+
+% =========================
+% PHAN III
+% =========================
+\phan{III}{Thí sinh trả lời từ câu 1 đến câu 6.}
+\setcounter{cau}{0}
+
+% --- PHAN_III_CAU_HOI ---
+
+\vfill
+
+\begin{center}
+\textbf{---------------- HẾT ----------------}
+\end{center}
+
+\textit{Thí sinh không được sử dụng tài liệu.}\\
+\textit{Giám thị không giải thích gì thêm.}
+
+\end{document}
