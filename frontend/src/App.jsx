@@ -96,7 +96,7 @@ function App() {
 
   const [showYamlModal, setShowYamlModal] = useState(false);
   const [yamlInput, setYamlInput] = useState(defaultYamlInput);
-  const [newQuestionId, setNewQuestionId] = useState('Q_NEW_1');
+  const [newQuestionId, setNewQuestionId] = useState('');
   const [yamlErrors, setYamlErrors] = useState([]);
   const [yamlWarnings, setYamlWarnings] = useState([]);
   const [validationMessage, setValidationMessage] = useState('');
@@ -275,7 +275,7 @@ function App() {
   };
 
   const handleOpenNewYaml = () => {
-    setNewQuestionId('Q_NEW_1');
+    setNewQuestionId('');
     setYamlInput(defaultYamlInput);
     resetYamlValidation();
     setShowYamlModal(true);
@@ -304,24 +304,23 @@ function App() {
   };
 
   const handleSaveYAML = async () => {
-    if (!newQuestionId.trim()) {
-      setYamlErrors(['Vui lòng nhập ID câu hỏi.']);
-      return;
-    }
-
     const valid = await handleValidateYAML();
     if (!valid) return;
 
     try {
       const result = await saveQuestion({
-        id: newQuestionId.trim(),
+        id: newQuestionId.trim() || undefined,
         rawContent: yamlInput
       });
 
       setYamlWarnings(result.warnings || []);
+      if (result.id) {
+        setNewQuestionId(result.id);
+      }
       setShowYamlModal(false);
+      setCurrentPage(1);
       await loadQuestions();
-      alert('Lưu câu hỏi thành công!');
+      alert(result.id ? `Lưu câu hỏi thành công! ID: ${result.id}` : 'Lưu câu hỏi thành công!');
     } catch (error) {
       setYamlErrors(getServiceErrors(error, 'Không lưu được câu hỏi.'));
       setYamlWarnings(error?.data?.warnings || []);
@@ -372,6 +371,7 @@ function App() {
       const result = await saveBulkQuestions(bulkInput);
       setBulkResult(result);
       setBulkInput(result.skipped?.length ? bulkInput : '');
+      setCurrentPage(1);
       await loadQuestions();
 
       if (!result.skipped?.length) {

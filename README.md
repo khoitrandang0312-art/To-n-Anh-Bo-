@@ -215,6 +215,32 @@ Body:
 }
 ```
 
+## ID câu hỏi
+
+Khi thêm câu mới trong UI, bạn có thể để trống ô `Mã câu hỏi (ID)`. Backend sẽ tự tạo ID theo dạng:
+
+```text
+Q_YYYYMMDD_HHMMSS
+```
+
+Ví dụ:
+
+```text
+Q_20260603_175251
+```
+
+Nếu có nhiều câu được tạo trong cùng một giây, hệ thống tự thêm hậu tố như `_2`, `_3` để không trùng file.
+
+API `POST /api/questions` cũng có thể bỏ qua `id`:
+
+```json
+{
+  "rawContent": "---\ntopic: \"Đại số\"\n...\n---\nNội dung"
+}
+```
+
+Nếu muốn sửa một câu cũ hoặc tự đặt ID thủ công, vẫn có thể gửi `id` như trước.
+
 ## Template LaTeX
 
 Danh sách template nằm trong:

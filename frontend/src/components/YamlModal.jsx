@@ -74,8 +74,11 @@ export default function YamlModal({
             value={questionId}
             onChange={(event) => onQuestionIdChange(event.target.value)}
             className="w-full rounded-lg border border-slate-300 p-2 outline-none focus:border-blue-500"
-            placeholder="Ví dụ: Q_NEW_1"
+            placeholder="Bỏ trống để hệ thống tự tạo"
           />
+          <p className="mt-1 text-xs text-slate-500">
+            Khi thêm câu mới, bạn có thể để trống. Khi sửa câu cũ, hệ thống sẽ giữ ID hiện tại.
+          </p>
         </div>
 
         <MessageList title="Lỗi schema" items={yamlErrors} tone="red" />

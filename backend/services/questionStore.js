@@ -17,6 +17,42 @@ function assertQuestionId(id) {
   }
 }
 
+function formatQuestionIdTimestamp(date = new Date()) {
+  const pad = value => String(value).padStart(2, "0");
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1);
+  const day = pad(date.getDate());
+  const hour = pad(date.getHours());
+  const minute = pad(date.getMinutes());
+  const second = pad(date.getSeconds());
+
+  return `Q_${year}${month}${day}_${hour}${minute}${second}`;
+}
+
+function createQuestionId(dataDir) {
+  const baseId = formatQuestionIdTimestamp();
+  let candidateId = baseId;
+  let suffix = 2;
+
+  while (fs.existsSync(path.join(dataDir, `${candidateId}.md`))) {
+    candidateId = `${baseId}_${suffix}`;
+    suffix += 1;
+  }
+
+  return candidateId;
+}
+
+function resolveQuestionId(dataDir, id) {
+  const trimmedId = id ? String(id).trim() : "";
+
+  if (!trimmedId) {
+    return createQuestionId(dataDir);
+  }
+
+  assertQuestionId(trimmedId);
+  return trimmedId;
+}
+
 function getQuestionFilePath(dataDir, id) {
   assertQuestionId(id);
   return path.join(dataDir, `${id}.md`);
@@ -39,7 +75,8 @@ function listQuestions(dataDir) {
           id: file.replace(".md", ""),
           ...parsed.data,
           content: parsed.content.trim(),
-          createdAt: stat.birthtimeMs || stat.mtimeMs
+          createdAt: stat.mtimeMs || stat.birthtimeMs,
+          updatedAt: stat.mtimeMs || stat.birthtimeMs
         });
       } catch (error) {
         console.error(`Bỏ qua file câu hỏi lỗi định dạng: ${file}`, error.message);
@@ -48,7 +85,7 @@ function listQuestions(dataDir) {
       return acc;
     }, []);
 
-  questions.sort((a, b) => b.createdAt - a.createdAt);
+  questions.sort((a, b) => b.updatedAt - a.updatedAt);
   return questions;
 }
 
@@ -65,7 +102,6 @@ function getQuestionRaw(dataDir, id) {
 
 function saveQuestion(dataDir, id, rawContent) {
   ensureDataDir(dataDir);
-  assertQuestionId(id);
 
   if (!rawContent || !rawContent.trim()) {
     return {
@@ -73,6 +109,18 @@ function saveQuestion(dataDir, id, rawContent) {
       status: 400,
       error: "Nội dung câu hỏi rỗng.",
       errors: ["Nội dung câu hỏi rỗng."]
+    };
+  }
+
+  let targetId;
+  try {
+    targetId = resolveQuestionId(dataDir, id);
+  } catch (error) {
+    return {
+      success: false,
+      status: 400,
+      error: error.message,
+      errors: [error.message]
     };
   }
 
@@ -87,11 +135,12 @@ function saveQuestion(dataDir, id, rawContent) {
     };
   }
 
-  const filePath = getQuestionFilePath(dataDir, id);
+  const filePath = getQuestionFilePath(dataDir, targetId);
   fs.writeFileSync(filePath, rawContent, "utf-8");
 
   return {
     success: true,
+    id: targetId,
     message: "Đã lưu câu hỏi thành công!",
     warnings: validation.warnings || []
   };
@@ -160,6 +209,7 @@ module.exports = {
   saveQuestion,
   deleteQuestion,
   bulkImportQuestions,
+  createQuestionId,
   getQuestionFilePath,
   ensureDataDir
 };

@@ -75,11 +75,11 @@ app.post("/api/questions/validate", (req, res) => {
 app.post("/api/questions", (req, res) => {
   try {
     const { id, rawContent } = req.body;
-    if (!id || !rawContent) {
+    if (!rawContent) {
       return res.status(400).json({
         success: false,
-        error: "Thiếu ID hoặc nội dung.",
-        errors: ["Thiếu ID hoặc nội dung."]
+        error: "Thiếu nội dung.",
+        errors: ["Thiếu nội dung."]
       });
     }
 
