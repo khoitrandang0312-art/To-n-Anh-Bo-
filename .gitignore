@@ -20,6 +20,7 @@ lerna-debug.log*
 *.local
 
 # Generated exam/output files
+backend/data/
 backend/exam.tex
 backend/test_output.json
 
