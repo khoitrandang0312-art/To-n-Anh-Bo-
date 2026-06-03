@@ -1,0 +1,115 @@
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage[vietnamese]{babel}
+\usepackage{amsmath, amssymb, mathtools}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{calc,angles,quotes,intersections,patterns,arrows.meta,positioning}
+\usepackage{tasks}
+\usepackage{enumitem}
+\usepackage{geometry}
+\geometry{a4paper,left=18mm,right=18mm,top=16mm,bottom=18mm}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\everymath{\displaystyle}
+
+\newif\ifgiaovien
+% \giaovientrue
+\giaovienfalse
+
+\newenvironment{loigiai}
+{\ifgiaovien\par\noindent\textbf{Lời giải.}\par\noindent\ignorespaces}
+{\par\fi}
+
+\newcounter{cau}
+\newcommand{\cau}{\stepcounter{cau}\par\noindent\textbf{Câu \thecau. }}
+
+\settasks{
+  label=\textbf{\Alph*.},
+  label-width=18pt,
+  item-indent=22pt,
+  label-offset=4pt,
+  column-sep=12pt,
+  after-item-skip=4pt
+}
+
+\newcommand{\bonpa}[4]{
+\begin{tasks}(4)
+\task #1
+\task #2
+\task #3
+\task #4
+\end{tasks}
+}
+
+\newcommand{\haipa}[4]{
+\begin{tasks}(2)
+\task #1
+\task #2
+\task #3
+\task #4
+\end{tasks}
+}
+
+\newcommand{\motcot}[4]{
+\begin{tasks}(1)
+\task #1
+\task #2
+\task #3
+\task #4
+\end{tasks}
+}
+
+\newcommand{\phan}[2]{
+  \vspace{6pt}
+  \par\noindent\large\textbf{PHẦN #1. #2}
+  \normalsize
+  \vspace{4pt}
+}
+
+\newenvironment{dungsai}
+{\begin{enumerate}[label=\textbf{\alph*)}, leftmargin=18pt, itemsep=2pt]}
+{\end{enumerate}}
+
+\newcommand{\shortanswerbox}[1]{%
+\hfill
+\fbox{\parbox[c][0.7cm][c]{3cm}{\centering \ifgiaovien #1\else\phantom{#1}\fi}}%
+}
+
+\newcommand{\fourshortanswers}[4]{%
+\begin{center}
+\begin{tabular}{cccc}
+\textbf{a)} & \textbf{b)} & \textbf{c)} & \textbf{d)} \\[4pt]
+\fbox{\parbox[c][0.6cm][c]{2.2cm}{\centering \ifgiaovien #1\else\phantom{#1}\fi}} &
+\fbox{\parbox[c][0.6cm][c]{2.2cm}{\centering \ifgiaovien #2\else\phantom{#2}\fi}} &
+\fbox{\parbox[c][0.6cm][c]{2.2cm}{\centering \ifgiaovien #3\else\phantom{#3}\fi}} &
+\fbox{\parbox[c][0.6cm][c]{2.2cm}{\centering \ifgiaovien #4\else\phantom{#4}\fi}}
+\end{tabular}
+\end{center}
+}
+
+\begin{document}
+
+\begin{center}
+{\Large\textbf{PHIẾU LUYỆN TẬP TOÁN}}\\[4pt]
+{\normalsize Sinh tự động từ Ngân hàng Toán Anh Bo}
+\end{center}
+
+\phan{I}{Trắc nghiệm một đáp án}
+
+% --- PHAN_I_CAU_HOI ---
+
+\phan{II}{Đúng/Sai}
+\setcounter{cau}{0}
+
+% --- PHAN_II_CAU_HOI ---
+
+\phan{III}{Trả lời ngắn}
+\setcounter{cau}{0}
+
+% --- PHAN_III_CAU_HOI ---
+
+\end{document}

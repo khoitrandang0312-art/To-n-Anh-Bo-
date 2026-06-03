@@ -1,0 +1,16 @@
+[
+  {
+    "id": "thpt-2025",
+    "name": "Đề THPT 2025 - 3 phần",
+    "description": "Template chính thức dạng đề tốt nghiệp THPT với Phần I trắc nghiệm, Phần II đúng/sai, Phần III trả lời ngắn.",
+    "file": "../template.tex",
+    "default": true
+  },
+  {
+    "id": "practice-basic",
+    "name": "Phiếu luyện tập 3 phần",
+    "description": "Template gọn để luyện tập hoặc in nhanh, vẫn giữ cấu trúc 3 phần và cùng hệ thống placeholder.",
+    "file": "practice-basic.tex",
+    "default": false
+  }
+]

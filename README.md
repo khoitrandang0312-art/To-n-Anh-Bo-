@@ -1,114 +1,60 @@
-# Toán Anh Bo - Ngân Hàng Câu Hỏi Toán
+# Toán Anh Bo - Ngân hàng câu hỏi Toán
 
-Ứng dụng quản lý ngân hàng câu hỏi Toán học, nhập câu hỏi bằng Markdown + YAML, lọc theo thuộc tính học thuật, gom câu vào giỏ và sinh file đề thi LaTeX theo cấu trúc đề THPT 3 phần.
+Ứng dụng quản lý ngân hàng câu hỏi Toán bằng Markdown + YAML, lọc theo thuộc tính học thuật, gom câu hỏi vào gói đề và sinh file LaTeX theo nhiều template khác nhau.
 
-## Mục Tiêu
+Điểm quan trọng của repo này: `backend/data/` là dữ liệu thật của bạn và đã được đưa vào `.gitignore`, vì vậy câu hỏi riêng không bị đẩy lên GitHub. Repo chỉ lưu code, template và dữ liệu mẫu trong `backend/sample-data/`.
 
-Dự án được thiết kế để hỗ trợ xây dựng ngân hàng câu hỏi Toán theo dạng dữ liệu có cấu trúc. Mỗi câu hỏi là một file Markdown có phần metadata YAML ở đầu file, giúp hệ thống đọc được phân môn, chương, chủ đề, mức độ và loại bài tập.
+## Tính năng chính
 
-Từ các câu hỏi đã chọn, hệ thống tự động sinh file `exam.tex` dựa trên template LaTeX, đồng thời tự phân phối câu hỏi vào đúng phần của đề:
+- Quản lý câu hỏi theo từng file `.md`.
+- Nhập một câu hỏi bằng Markdown + YAML.
+- Nhập hàng loạt câu hỏi bằng delimiter `---END_QUESTION---`.
+- Validate YAML/schema trước khi lưu.
+- Lọc theo `topic`, `chapter`, `theme`, `difficulty`, `type`.
+- Hiển thị công thức bằng KaTeX ở frontend.
+- Gom câu hỏi vào gói đề và tự chia theo 3 phần:
+  - Phần I: `type: mcq`.
+  - Phần II: `type: true_false` hoặc `type: dung_sai`.
+  - Phần III: `type: short_answer`, `type: short_answer_4`, `type: essay`.
+- Chọn nhiều template LaTeX từ catalog.
+- Chỉnh template trong UI, backend kiểm tra đủ placeholder trước khi lưu.
 
-- Phần I: câu hỏi trắc nghiệm một đáp án, `type: mcq`.
-- Phần II: câu hỏi đúng sai 4 ý, `type: true_false` hoặc `type: dung_sai`.
-- Phần III: câu hỏi trả lời ngắn, `type: short_answer`, `type: short_answer_4` hoặc tự luận.
-
-## Tính Năng Chính
-
-- Quản lý câu hỏi theo từng file `.md` trong `backend/data`.
-- Nhập một câu hỏi mới bằng YAML + Markdown.
-- Nhập hàng loạt nhiều câu hỏi bằng delimiter `---END_QUESTION---`.
-- Lọc câu hỏi theo:
-  - Phân môn, lấy từ `topic`.
-  - Chương, lấy từ `chapter`.
-  - Chủ đề, lấy từ `theme`.
-  - Mức độ, lấy từ `difficulty`.
-  - Loại bài tập, lấy từ `type`.
-- Xem trước nội dung câu hỏi có hỗ trợ công thức KaTeX.
-- Thêm câu hỏi vào giỏ đề.
-- Bốc ngẫu nhiên câu hỏi theo bộ lọc hiện tại.
-- Giỏ câu hỏi được nhóm theo Phần I, Phần II, Phần III.
-- Sinh file đề thi LaTeX theo template THPT mới.
-- Chỉnh sửa template LaTeX trực tiếp trong giao diện.
-
-## Công Nghệ
-
-Frontend:
-
-- React
-- Vite
-- Tailwind CSS
-- KaTeX
-
-Backend:
-
-- Node.js
-- Express
-- gray-matter để đọc YAML front matter
-- File system để lưu câu hỏi và sinh file `.tex`
-
-LaTeX:
-
-- XeLaTeX khuyến nghị để hỗ trợ tiếng Việt và `fontspec`.
-- Template dùng các package như `amsmath`, `tikz`, `tasks`, `enumitem`, `fancyhdr`, `tabularx`.
-
-## Cấu Trúc Thư Mục
+## Cấu trúc dự án
 
 ```text
 Ngan_Hang_Toan/
 ├── backend/
-│   ├── data/              # Câu hỏi Markdown + YAML
-│   ├── server.js          # API backend và logic sinh đề
-│   ├── template.tex       # Template đề THPT 3 phần
-│   ├── package.json
-│   └── package-lock.json
+│   ├── data/                 # Dữ liệu thật, không commit
+│   ├── sample-data/          # File mẫu được commit
+│   ├── services/             # Logic backend đã tách
+│   ├── templates/            # Catalog và template phụ
+│   ├── utils/                # Schema/type helpers
+│   ├── server.js             # API Express mỏng
+│   ├── template.tex          # Template THPT mặc định
+│   └── exam.tex              # File sinh ra, không commit
 ├── frontend/
-│   ├── src/
-│   │   ├── App.jsx        # Giao diện chính
-│   │   ├── main.jsx
-│   │   └── index.css
-│   ├── public/
-│   ├── package.json
-│   └── package-lock.json
-├── run.bat                # Chạy nhanh backend + frontend trên Windows
+│   └── src/
+│       ├── components/       # UI components
+│       ├── lib/              # API, type helpers, render toán
+│       └── App.jsx           # Điều phối state và workflow
+├── run.bat
 ├── .gitignore
 └── README.md
 ```
 
-## Cài Đặt
+## Chạy dự án
 
-Yêu cầu:
-
-- Node.js
-- npm
-- Git
-- Một bộ LaTeX có hỗ trợ XeLaTeX nếu muốn biên dịch file `.tex` thành PDF
-
-Cài dependency backend:
+Cài dependency:
 
 ```bash
 cd backend
 npm install
 ```
 
-Cài dependency frontend:
-
 ```bash
 cd frontend
 npm install
 ```
-
-## Chạy Dự Án
-
-Cách nhanh trên Windows:
-
-```bash
-run.bat
-```
-
-Lệnh này mở 2 cửa sổ terminal:
-
-- Backend tại `http://localhost:3000`
-- Frontend tại `http://localhost:5173`
 
 Chạy thủ công:
 
@@ -122,39 +68,101 @@ cd frontend
 npm run dev
 ```
 
-Sau đó mở:
+Mở frontend tại:
 
 ```text
 http://localhost:5173
 ```
 
-## Định Dạng Câu Hỏi
+Backend chạy tại:
 
-Mỗi câu hỏi là một file `.md` trong `backend/data`. File gồm 2 phần:
+```text
+http://localhost:3000
+```
 
-- YAML front matter nằm giữa `---`.
-- Nội dung Markdown của câu hỏi nằm bên dưới.
+## Workflow dữ liệu thật
 
-Ví dụ câu trắc nghiệm:
+`backend/data/` là nơi chứa toàn bộ câu hỏi thật. Thư mục này không được commit.
+
+Khi clone repo mới hoặc chuyển sang máy khác, tạo lại thư mục dữ liệu:
+
+```bash
+mkdir backend/data
+```
+
+Nếu muốn thử nhanh bằng dữ liệu mẫu, copy các file trong `backend/sample-data/` sang `backend/data/`:
+
+```bash
+cp backend/sample-data/*.md backend/data/
+```
+
+Trên Windows PowerShell:
+
+```powershell
+Copy-Item backend/sample-data/*.md backend/data/
+```
+
+Khi thêm câu hỏi thật, bạn có thể dùng UI `Nhập YAML` hoặc tự tạo file `.md` trong `backend/data/`. Vì `backend/data/` đã bị ignore, Git sẽ không đưa các file này lên GitHub.
+
+## Schema câu hỏi chuẩn
+
+Mỗi câu hỏi là một file Markdown có YAML front matter ở đầu file:
+
+```md
+---
+topic: "Phân môn"
+chapter: "Chương"
+theme: "Chủ đề"
+difficulty: "Mức độ"
+type: "mcq"
+---
+Nội dung câu hỏi ở đây.
+```
+
+Các field bắt buộc:
+
+| Field | Ý nghĩa |
+| --- | --- |
+| `topic` | Phân môn, ví dụ `Đại số`, `Hình học`, `Giải tích` |
+| `chapter` | Chương |
+| `theme` | Chủ đề nhỏ |
+| `difficulty` | Mức độ |
+| `type` | Loại bài tập |
+
+Các `type` hợp lệ:
+
+| Type | Dùng cho | Yêu cầu schema |
+| --- | --- | --- |
+| `mcq` | Trắc nghiệm | `answers` đúng 4 phương án |
+| `true_false` | Đúng/Sai | `statements` đúng 4 ý |
+| `dung_sai` | Alias của Đúng/Sai | `statements` đúng 4 ý |
+| `short_answer` | Trả lời ngắn | nên có `answer` |
+| `short_answer_4` | Trả lời ngắn 4 ý | `short_answers` đúng 4 đáp án |
+| `essay` | Tự luận | có thể dùng `space` để chừa khoảng làm bài |
+
+Ví dụ trắc nghiệm:
 
 ```md
 ---
 topic: "Đại số"
 chapter: "Phương trình"
-theme: "Bậc hai"
+theme: "Phương trình bậc hai"
 difficulty: "Cơ bản"
 type: "mcq"
 layout: 4
 answers:
-  - "$x = 1$"
-  - "$x = 2$"
-  - "$x = 3$"
-  - "$x = 4$"
+  - "$x=1$"
+  - "$x=2$"
+  - "$x=3$"
+  - "$x=4$"
+answer: "B"
+solution: |
+  Thay $x=2$ vào phương trình.
 ---
-Giải phương trình $x^2 - 5x + 6 = 0$.
+Nghiệm của phương trình $x+1=3$ là
 ```
 
-Ví dụ câu đúng sai:
+Ví dụ đúng/sai:
 
 ```md
 ---
@@ -164,7 +172,7 @@ theme: "Ứng dụng đạo hàm"
 difficulty: "Vận dụng"
 type: "true_false"
 statements:
-  - "Hàm số đã cho có đạo hàm là $f'(x)=3x^2-12$."
+  - "Hàm số có đạo hàm $f'(x)=3x^2-12$."
   - "Phương trình $f'(x)=0$ có nghiệm $x=2$."
   - "$f(2)=24$."
   - "Giá trị lớn nhất trên đoạn $[-3;3]$ bằng $24$."
@@ -172,7 +180,7 @@ statements:
 Cho hàm số $f(x)=x^3-12x-8$.
 ```
 
-Ví dụ câu trả lời ngắn:
+Ví dụ trả lời ngắn:
 
 ```md
 ---
@@ -187,44 +195,47 @@ Một hộp có $5$ bi đỏ và $7$ bi xanh. Lấy ngẫu nhiên $2$ viên bi.
 Tính xác suất để lấy được hai viên bi cùng màu.
 ```
 
-## Các Thuộc Tính YAML Quan Trọng
+## Validate trước khi lưu
 
-```yaml
-topic: "Phân môn"
-chapter: "Chương"
-theme: "Chủ đề"
-difficulty: "Mức độ"
-type: "mcq | true_false | dung_sai | short_answer | short_answer_4 | essay"
+Frontend có nút `Kiểm tra YAML`. Khi bấm `Lưu vào server`, app cũng tự validate trước khi ghi file.
+
+Backend luôn validate lại bằng `backend/utils/questionSchema.js`. Nếu câu hỏi sai schema, API sẽ trả lỗi và không ghi vào `backend/data/`.
+
+Endpoint validate:
+
+```http
+POST /api/questions/validate
 ```
 
-Một số trường tùy chọn:
+Body:
 
-```yaml
-image: "duong-dan-anh-hoac-url"
-image_width: "0.5\\textwidth"
-equation: "x = \\frac{-b \\pm \\sqrt{\\Delta}}{2a}"
-tikz: |
-  \\begin{tikzpicture}
-  ...
-  \\end{tikzpicture}
-solution: |
-  Nội dung lời giải.
+```json
+{
+  "rawContent": "---\ntopic: \"Đại số\"\n...\n---\nNội dung"
+}
 ```
 
-## Quy Tắc Phân Phần Khi Sinh Đề
+## Template LaTeX
 
-Backend tự đọc `type` của từng câu hỏi trong giỏ và đưa vào đúng phần:
+Danh sách template nằm trong:
 
-| Type | Phần Trong Đề | Ghi Chú |
-| --- | --- | --- |
-| `mcq` | Phần I | Trắc nghiệm một đáp án |
-| `true_false` | Phần II | Đúng/Sai 4 ý |
-| `dung_sai` | Phần II | Alias tiếng Việt không dấu |
-| `short_answer` | Phần III | Trả lời ngắn một đáp án |
-| `short_answer_4` | Phần III | Trả lời ngắn 4 ý |
-| `essay` | Phần III | Tự luận hoặc câu cần khoảng trống làm bài |
+```text
+backend/templates/catalog.json
+```
 
-Template dùng 3 placeholder:
+Mỗi template có dạng:
+
+```json
+{
+  "id": "practice-basic",
+  "name": "Phiếu luyện tập 3 phần",
+  "description": "Template gọn để luyện tập hoặc in nhanh.",
+  "file": "practice-basic.tex",
+  "default": false
+}
+```
+
+Template bắt buộc giữ đủ 3 placeholder:
 
 ```tex
 % --- PHAN_I_CAU_HOI ---
@@ -232,82 +243,79 @@ Template dùng 3 placeholder:
 % --- PHAN_III_CAU_HOI ---
 ```
 
-Không nên xóa 3 dòng này khi chỉnh template, vì backend cần chúng để chèn câu hỏi vào đúng phần.
+Khi sinh đề, backend sẽ đưa câu hỏi vào đúng phần dựa trên `type`.
 
-## API Backend
+Muốn thêm template mới:
 
-Lấy danh sách câu hỏi:
+1. Tạo file `.tex` trong `backend/templates/`.
+2. Đảm bảo file có đủ 3 placeholder trên.
+3. Thêm entry vào `backend/templates/catalog.json`.
+4. Chạy lại app, template mới sẽ xuất hiện trong dropdown ở frontend.
+
+## Backend đã tách logic
+
+`backend/server.js` chỉ còn vai trò định nghĩa API. Logic chính nằm ở:
+
+- `backend/services/questionStore.js`: đọc, lưu, xóa, bulk import câu hỏi.
+- `backend/services/templateStore.js`: đọc catalog, đọc/lưu/validate template.
+- `backend/services/examGenerator.js`: sinh `exam.tex`.
+- `backend/services/latexRenderer.js`: chuyển câu hỏi sang LaTeX.
+- `backend/utils/questionSchema.js`: chuẩn hóa và validate schema.
+- `backend/utils/questionTypes.js`: map `type` sang phần đề.
+
+## Frontend đã tách component
+
+`frontend/src/App.jsx` giữ state và workflow. UI nằm ở:
+
+- `Header.jsx`
+- `FilterBar.jsx`
+- `ExamPartSummary.jsx`
+- `QuestionCard.jsx`
+- `Pagination.jsx`
+- `YamlModal.jsx`
+- `BulkImportModal.jsx`
+- `TemplateModal.jsx`
+- `CartModal.jsx`
+
+Các helper nằm trong:
+
+- `frontend/src/lib/api.js`
+- `frontend/src/lib/questionTypes.js`
+- `frontend/src/lib/mathRender.jsx`
+
+## API chính
 
 ```http
 GET /api/questions
-```
-
-Lấy nội dung raw của một câu hỏi:
-
-```http
 GET /api/questions/:id
-```
-
-Thêm hoặc cập nhật một câu hỏi:
-
-```http
+POST /api/questions/validate
 POST /api/questions
-```
-
-Body:
-
-```json
-{
-  "id": "Q_NEW_1",
-  "rawContent": "---\\ntopic: 'Toán'\\n---\\nNội dung câu hỏi"
-}
-```
-
-Nhập hàng loạt:
-
-```http
-POST /api/questions/bulk
-```
-
-Xóa câu hỏi:
-
-```http
 DELETE /api/questions/:id
+POST /api/questions/bulk
+GET /api/templates
+GET /api/templates/:id
+POST /api/templates/:id
+POST /api/generate-exam
+GET /download-exam
 ```
 
 Sinh đề:
 
-```http
-POST /api/generate-exam
-```
-
-Body:
-
 ```json
 {
-  "questionIds": ["Q1", "Q2", "Q3"]
+  "questionIds": ["Q1", "Q2", "Q3"],
+  "templateId": "thpt-2025"
 }
 ```
 
-Tải file đề vừa sinh:
+## Kiểm tra trước khi commit
 
-```http
-GET /download-exam
+Backend:
+
+```bash
+cd backend
+node --check server.js
 ```
-
-Đọc template:
-
-```http
-GET /api/template
-```
-
-Lưu template:
-
-```http
-POST /api/template
-```
-
-## Kiểm Tra Trước Khi Commit
 
 Frontend:
 
@@ -317,68 +325,37 @@ npm run lint
 npm run build
 ```
 
-Backend:
+## Quy trình Git hằng ngày
 
-```bash
-cd backend
-node --check server.js
-```
-
-## Quy Trình Git
-
-Lần đầu đã được thiết lập với remote:
-
-```text
-https://github.com/khoitrandang0312-art/To-n-Anh-Bo-.git
-```
-
-Sau mỗi lần thay đổi:
+Kiểm tra thay đổi:
 
 ```bash
 git status
+```
+
+Commit code/template/README:
+
+```bash
 git add .
 git commit -m "Mô tả thay đổi"
 git push
 ```
 
-Ví dụ:
+Không cần commit `backend/data/`, vì đó là dữ liệu riêng. Nếu muốn backup dữ liệu thật, hãy dùng cách riêng tư hơn như ổ cứng cá nhân, Google Drive private, hoặc repo private khác chỉ dành cho dữ liệu.
 
-```bash
-git add .
-git commit -m "Cập nhật template đề THPT"
-git push
+## Biên dịch LaTeX
+
+File được sinh tại:
+
+```text
+backend/exam.tex
 ```
 
-## Các File Không Nên Commit
-
-`.gitignore` hiện loại bỏ:
-
-- `node_modules/`
-- `dist/`
-- `.env`
-- log files
-- file LaTeX tạm
-- `backend/exam.tex`
-- `backend/test_output.json`
-
-Điều này giúp repo nhẹ hơn, sạch hơn và tránh đẩy file sinh tự động lên GitHub.
-
-## Ghi Chú Khi Biên Dịch LaTeX
-
-Template dùng `fontspec`, vì vậy nên biên dịch bằng XeLaTeX:
+Nên biên dịch bằng XeLaTeX để hỗ trợ tiếng Việt:
 
 ```bash
+cd backend
 xelatex exam.tex
 ```
 
-Nếu dùng Overleaf, hãy chọn compiler là XeLaTeX.
-
-## Trạng Thái Hiện Tại
-
-Ứng dụng hiện hỗ trợ template đề THPT 3 phần:
-
-- Phần I: trắc nghiệm.
-- Phần II: đúng sai.
-- Phần III: trả lời ngắn.
-
-Frontend đã hiển thị badge phần tương ứng trên từng câu hỏi và nhóm giỏ câu hỏi theo đúng cấu trúc đề trước khi sinh file LaTeX.
+Nếu dùng Overleaf, chọn compiler là XeLaTeX.
