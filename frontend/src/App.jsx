@@ -12,6 +12,7 @@ import TemplateModal from './components/TemplateModal';
 import YamlModal from './components/YamlModal';
 import {
   deleteQuestion,
+  deleteQuestions,
   fetchQuestionRaw,
   fetchQuestions,
   fetchTemplateContent,
@@ -76,6 +77,63 @@ function withAll(values) {
   return ['All', ...values];
 }
 
+function DeleteSelectionToolbar({
+  selectedCount,
+  currentPageCount,
+  filteredCount,
+  isCurrentPageFullySelected,
+  isFilteredFullySelected,
+  onSelectCurrentPage,
+  onSelectFiltered,
+  onClear,
+  onDeleteSelected
+}) {
+  return (
+    <section className="mx-auto mb-6 max-w-6xl rounded-xl border border-red-100 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="text-sm font-semibold text-slate-600">
+          Đã chọn <span className="text-red-600">{selectedCount}</span> câu hỏi để xóa
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={onSelectCurrentPage}
+            disabled={currentPageCount === 0 || isCurrentPageFullySelected}
+            className="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Chọn trang này
+          </button>
+          <button
+            type="button"
+            onClick={onSelectFiltered}
+            disabled={filteredCount === 0 || isFilteredFullySelected}
+            className="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Chọn tất cả kết quả lọc
+          </button>
+          <button
+            type="button"
+            onClick={onClear}
+            disabled={selectedCount === 0}
+            className="h-10 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Bỏ chọn
+          </button>
+          <button
+            type="button"
+            onClick={onDeleteSelected}
+            disabled={selectedCount === 0}
+            className="h-10 rounded-lg bg-red-600 px-4 text-sm font-bold text-white shadow-sm transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Xóa đã chọn
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function getServiceErrors(error, fallbackMessage) {
   return error?.data?.errors?.length ? error.data.errors : [error.message || fallbackMessage];
 }
@@ -83,6 +141,7 @@ function getServiceErrors(error, fallbackMessage) {
 function App() {
   const [questions, setQuestions] = useState([]);
   const [cart, setCart] = useState([]);
+  const [deleteSelection, setDeleteSelection] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
   const [currentPage, setCurrentPage] = useState(1);
   const [randomCount, setRandomCount] = useState(10);
@@ -197,6 +256,16 @@ function App() {
     (safeCurrentPage - 1) * QUESTIONS_PER_PAGE,
     safeCurrentPage * QUESTIONS_PER_PAGE
   );
+  const currentQuestionIds = currentQuestions.map((question) => question.id);
+  const filteredQuestionIds = useMemo(
+    () => filteredQuestions.map((question) => question.id),
+    [filteredQuestions]
+  );
+  const selectedDeleteIdSet = useMemo(() => new Set(deleteSelection), [deleteSelection]);
+  const isCurrentPageFullySelected = currentQuestionIds.length > 0
+    && currentQuestionIds.every((id) => selectedDeleteIdSet.has(id));
+  const isFilteredFullySelected = filteredQuestionIds.length > 0
+    && filteredQuestionIds.every((id) => selectedDeleteIdSet.has(id));
 
   const selectedQuestions = useMemo(
     () => questions.filter((question) => cart.includes(question.id)),
@@ -237,6 +306,34 @@ function App() {
         ? currentCart.filter((item) => item !== id)
         : [...currentCart, id]
     ));
+  };
+
+  const toggleDeleteSelection = (id) => {
+    setDeleteSelection((currentSelection) => (
+      currentSelection.includes(id)
+        ? currentSelection.filter((item) => item !== id)
+        : [...currentSelection, id]
+    ));
+  };
+
+  const selectCurrentPageForDelete = () => {
+    setDeleteSelection((currentSelection) => {
+      const nextSelection = new Set(currentSelection);
+      currentQuestionIds.forEach((id) => nextSelection.add(id));
+      return [...nextSelection];
+    });
+  };
+
+  const selectFilteredForDelete = () => {
+    setDeleteSelection((currentSelection) => {
+      const nextSelection = new Set(currentSelection);
+      filteredQuestionIds.forEach((id) => nextSelection.add(id));
+      return [...nextSelection];
+    });
+  };
+
+  const clearDeleteSelection = () => {
+    setDeleteSelection([]);
   };
 
   const handleRandomPick = () => {
@@ -347,9 +444,37 @@ function App() {
     try {
       await deleteQuestion(id);
       setCart((currentCart) => currentCart.filter((item) => item !== id));
+      setDeleteSelection((currentSelection) => currentSelection.filter((item) => item !== id));
       await loadQuestions();
     } catch (error) {
       alert(`Không xóa được câu hỏi: ${error.message}`);
+    }
+  };
+
+  const handleDeleteSelectedQuestions = async () => {
+    if (deleteSelection.length === 0) {
+      alert('Vui lòng chọn ít nhất 1 câu hỏi để xóa.');
+      return;
+    }
+
+    const previewIds = deleteSelection.slice(0, 5).join(', ');
+    const extraCount = deleteSelection.length > 5 ? `, ... +${deleteSelection.length - 5}` : '';
+
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa ${deleteSelection.length} câu hỏi đã chọn (${previewIds}${extraCount}) không?`)) {
+      return;
+    }
+
+    try {
+      const result = await deleteQuestions(deleteSelection);
+      const deletedIds = result.deletedIds?.length ? result.deletedIds : deleteSelection;
+      const deletedIdSet = new Set(deletedIds);
+
+      setCart((currentCart) => currentCart.filter((item) => !deletedIdSet.has(item)));
+      setDeleteSelection((currentSelection) => currentSelection.filter((item) => !deletedIdSet.has(item)));
+      await loadQuestions();
+      alert(result.message || `Đã xóa ${deletedIds.length} câu hỏi.`);
+    } catch (error) {
+      alert(`Không xóa được các câu hỏi đã chọn: ${error.message}`);
     }
   };
 
@@ -467,6 +592,18 @@ function App() {
 
       <ExamPartSummary parts={selectedQuestionsByPart} />
 
+      <DeleteSelectionToolbar
+        selectedCount={deleteSelection.length}
+        currentPageCount={currentQuestions.length}
+        filteredCount={filteredQuestions.length}
+        isCurrentPageFullySelected={isCurrentPageFullySelected}
+        isFilteredFullySelected={isFilteredFullySelected}
+        onSelectCurrentPage={selectCurrentPageForDelete}
+        onSelectFiltered={selectFilteredForDelete}
+        onClear={clearDeleteSelection}
+        onDeleteSelected={handleDeleteSelectedQuestions}
+      />
+
       <main className="mx-auto flex max-w-6xl flex-col gap-6">
         {currentQuestions.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
@@ -478,7 +615,9 @@ function App() {
               key={question.id}
               question={question}
               isSelected={cart.includes(question.id)}
+              isDeleteSelected={selectedDeleteIdSet.has(question.id)}
               onToggleCart={toggleCart}
+              onToggleDeleteSelection={toggleDeleteSelection}
               onEdit={handleEditQuestion}
               onDelete={handleDeleteQuestion}
             />

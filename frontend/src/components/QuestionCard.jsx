@@ -153,16 +153,33 @@ function QuestionAnswers({ question }) {
 export default function QuestionCard({
   question,
   isSelected,
+  isDeleteSelected,
   onToggleCart,
+  onToggleDeleteSelection,
   onEdit,
   onDelete
 }) {
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:shadow-md">
+    <article className={`rounded-xl border bg-white p-6 shadow-sm transition-all hover:shadow-md ${
+      isDeleteSelected ? 'border-red-300 ring-2 ring-red-100' : 'border-slate-200'
+    }`}>
       <div className="mb-4 flex flex-col justify-between gap-3 lg:flex-row lg:items-start">
         <QuestionMeta question={question} />
 
         <div className="flex flex-wrap items-center gap-2">
+          <label className={`flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-bold transition-colors ${
+            isDeleteSelected
+              ? 'border-red-200 bg-red-50 text-red-700'
+              : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+          }`}>
+            <input
+              type="checkbox"
+              checked={isDeleteSelected}
+              onChange={() => onToggleDeleteSelection(question.id)}
+              className="h-4 w-4 accent-red-600"
+            />
+            Chọn xóa
+          </label>
           <button
             type="button"
             onClick={() => onEdit(question.id)}

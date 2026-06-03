@@ -8,6 +8,7 @@ const {
   getQuestionRaw,
   saveQuestion,
   deleteQuestion,
+  deleteQuestions,
   bulkImportQuestions,
   ensureDataDir
 } = require("./services/questionStore");
@@ -36,6 +37,16 @@ function sendServiceResult(res, result) {
   }
 
   return res.json(result);
+}
+
+function handleDeleteQuestionsRequest(req, res) {
+  try {
+    const { ids } = req.body;
+    return sendServiceResult(res, deleteQuestions(dataDir, ids));
+  } catch (error) {
+    console.error("Lỗi khi xóa nhiều câu hỏi:", error);
+    return res.status(500).json({ success: false, error: error.message || "Lỗi server khi xóa nhiều câu hỏi." });
+  }
 }
 
 app.get("/api/questions", (req, res) => {
@@ -89,6 +100,10 @@ app.post("/api/questions", (req, res) => {
     res.status(500).json({ success: false, error: error.message || "Lỗi server khi lưu câu hỏi." });
   }
 });
+
+app.post("/api/questions/delete-bulk", handleDeleteQuestionsRequest);
+
+app.delete("/api/questions", handleDeleteQuestionsRequest);
 
 app.delete("/api/questions/:id", (req, res) => {
   try {

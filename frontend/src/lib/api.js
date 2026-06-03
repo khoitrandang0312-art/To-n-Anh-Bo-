@@ -47,6 +47,13 @@ export function deleteQuestion(id) {
   return request(`/api/questions/${id}`, { method: 'DELETE' });
 }
 
+export function deleteQuestions(ids) {
+  return request('/api/questions/delete-bulk', {
+    method: 'POST',
+    body: JSON.stringify({ ids })
+  });
+}
+
 export function saveBulkQuestions(bulkContent) {
   return request('/api/questions/bulk', {
     method: 'POST',

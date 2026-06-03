@@ -158,6 +158,63 @@ function deleteQuestion(dataDir, id) {
   return { success: true, message: "Đã xóa câu hỏi thành công!" };
 }
 
+function deleteQuestions(dataDir, ids) {
+  ensureDataDir(dataDir);
+
+  if (!Array.isArray(ids)) {
+    return { success: false, status: 400, error: "Danh sách câu hỏi cần xóa không hợp lệ." };
+  }
+
+  const questionIds = [...new Set(
+    ids
+      .map(id => String(id || "").trim())
+      .filter(Boolean)
+  )];
+
+  if (questionIds.length === 0) {
+    return { success: false, status: 400, error: "Chưa chọn câu hỏi để xóa." };
+  }
+
+  try {
+    questionIds.forEach(assertQuestionId);
+  } catch (error) {
+    return { success: false, status: 400, error: error.message };
+  }
+
+  const deletedIds = [];
+  const missingIds = [];
+
+  questionIds.forEach(id => {
+    const filePath = getQuestionFilePath(dataDir, id);
+
+    if (!fs.existsSync(filePath)) {
+      missingIds.push(id);
+      return;
+    }
+
+    fs.unlinkSync(filePath);
+    deletedIds.push(id);
+  });
+
+  if (deletedIds.length === 0) {
+    return {
+      success: false,
+      status: 404,
+      error: "Không tìm thấy câu hỏi để xóa.",
+      deletedIds,
+      missingIds
+    };
+  }
+
+  return {
+    success: true,
+    deletedIds,
+    missingIds,
+    deletedCount: deletedIds.length,
+    message: `Đã xóa ${deletedIds.length} câu hỏi${missingIds.length ? `, bỏ qua ${missingIds.length} câu không tìm thấy` : ""}.`
+  };
+}
+
 function bulkImportQuestions(dataDir, bulkContent) {
   ensureDataDir(dataDir);
 
@@ -208,6 +265,7 @@ module.exports = {
   getQuestionRaw,
   saveQuestion,
   deleteQuestion,
+  deleteQuestions,
   bulkImportQuestions,
   createQuestionId,
   getQuestionFilePath,
